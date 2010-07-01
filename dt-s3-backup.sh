@@ -330,14 +330,20 @@ elif [ "$1" = "--restore" ]; then
 			echo -e "User aborted restore process ...\n" >> ${LOGFILE}
 			exit 1
 		fi
-  else
+	else
     DEST=$2
   fi
+
+  if [[ "$3" ]]; then
+			TIME=$3
+			#use INCLUDE variable without create another one
+		  INCLUDE="--time ${TIME}"
+	fi
 
   echo "Attempting to restore now ..."
   duplicity_backup
 
-elif [[ "$1" = "--restore-file" || "$1" = "--restore-file-time" ]]; then
+elif [ "$1" = "--restore-file" ]; then
   check_variables
   ROOT=$DEST
   INCLUDE=
@@ -417,7 +423,7 @@ else
     --full: forces a full backup
 
     --verify: verifies the backup
-    --restore [path]: restores the entire backup
+    --restore [path] [time]: restores the entire backup
     --restore-file [file] [destination/filename] [time]: restore a specific file
     --list-current-files: lists the files currently backed up in the archive
 
