@@ -337,7 +337,7 @@ elif [ "$1" = "--restore" ]; then
   echo "Attempting to restore now ..."
   duplicity_backup
 
-elif [ "$1" = "--restore-file" ]; then
+elif [[ "$1" = "--restore-file" || "$1" = "--restore-file-time" ]]; then
   check_variables
   ROOT=$DEST
   INCLUDE=
@@ -355,14 +355,25 @@ elif [ "$1" = "--restore-file" ]; then
   fi
 
   if [[ "$3" ]]; then
-		DEST=$3
+		if [[ -d "$3" ]]; then
+			DEST=$3
+			if [[ "$4" ]]; then
+				TIME=$4
+			fi
+		else
+			DEST=$(basename $FILE_TO_RESTORE)
+			TIME=$3
+		fi
 	else
-    DEST=$(basename $FILE_TO_RESTORE)
+		DEST=$(basename $FILE_TO_RESTORE)
 	fi
 
   echo -e "YOU ARE ABOUT TO..."
   echo -e ">> RESTORE: $FILE_TO_RESTORE"
   echo -e ">> TO: ${DEST}"
+	if [[ -n "$TIME" ]]; then
+		echo -e ">> FROM TIME: ${TIME}"
+	fi
   echo -e "\nAre you sure you want to do that ('yes' to continue)?"
   read ANSWER
   if [ "$ANSWER" != "yes" ]; then
@@ -374,6 +385,10 @@ elif [ "$1" = "--restore-file" ]; then
   echo "Restoring now ..."
   #use INCLUDE variable without create another one
   INCLUDE="--file-to-restore ${FILE_TO_RESTORE}"
+	if [[ -n "$TIME" ]]; then
+		#Add TIME option
+		INCLUDE="--time ${TIME} "${INCLUDE}
+	fi
   duplicity_backup
 
 elif [ "$1" = "--list-current-files" ]; then
@@ -403,10 +418,14 @@ else
 
     --verify: verifies the backup
     --restore [path]: restores the entire backup
-    --restore-file [file] [destination/filename]: restore a specific file
+    --restore-file [file] [destination/filename] [time]: restore a specific file
     --list-current-files: lists the files currently backed up in the archive
 
     --backup-script: automatically backup the script and secret key to the current working directory
+		
+	TIME FORMATS
+	========================
+	  -> view duplicity man page
 
   CURRENT SCRIPT VARIABLES:
   ========================
