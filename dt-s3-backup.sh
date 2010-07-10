@@ -361,7 +361,7 @@ elif [ "$1" = "--restore-file" ]; then
   fi
 
   if [[ "$3" ]]; then
-		if [[ -d "$3" ]]; then
+		if [[ -d "$3" || -f "$3" ]]; then
 			DEST=$3
 			if [[ "$4" ]]; then
 				TIME=$4
